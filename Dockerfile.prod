@@ -1,0 +1,29 @@
+# Base image
+FROM node:21
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+COPY package*.json ./
+
+# Install app dependencies
+RUN npm install
+
+# Bundle app source
+COPY . .
+
+# # Copy the .env and .env.development files - for testing we can 
+# COPY .env ./
+
+# Creates a "dist" folder with the production build
+RUN npm run build
+
+# Expose the port on which the app will run
+EXPOSE 3001
+
+# removes src from image , free little space as dist will be there
+RUN rm -rf ./src 
+
+# Start the server using the prod mode
+CMD ["npm", "run", "start:prod"]

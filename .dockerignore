@@ -1,0 +1,23 @@
+# Node modules should be rebuilt inside Docker
+node_modules
+
+# Local build output — you rebuild this in the container
+dist
+
+# Git-related
+.git
+.gitignore
+
+# Docker-related
+Dockerfile
+.dockerignore
+
+# Environment variables (never copy secrets)
+.env
+
+# OS / editor-specific
+*.log
+*.swp
+*.DS_Store
+*.idea
+.vscode

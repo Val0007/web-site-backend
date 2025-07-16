@@ -1,0 +1,43 @@
+import { Controller, Get, HttpException, HttpStatus, Req, Res, UseGuards } from '@nestjs/common';
+import { Request } from 'express';
+import { GoogleAuthGuard } from './utils/GoogleAuthGuard'
+import { AuthService } from './auth.services';
+import { Response } from 'express';
+
+@Controller('auth')
+export class AuthController {
+
+  constructor(private authService:AuthService){}
+
+  @Get('google/login')
+  @UseGuards(GoogleAuthGuard)
+  handleLogin() {
+    return { msg: 'Google Authentication' };
+  }
+
+  // api/auth/google/redirect
+  @Get('google/redirect')
+  @UseGuards(GoogleAuthGuard)
+  async handleRedirect(@Req() req:Request,@Res() res:Response) {
+    console.log(req.user)
+    if(!req.user) throw new HttpException("Error logging in",400)
+    const token = await this.authService.signIn({email:req.user["email"]})
+    //REDIRECT TO FRONTEND
+    // return {token}
+    // const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+    const frontendUrl = process.env.FRONTEND_URL || 'https://zipfolio.xyz';
+    const redirectUrl = `${frontendUrl}?token=${token}`;
+    
+    res.redirect(redirectUrl);
+  }
+
+  @Get('status')
+  user(@Req() request: Request) {
+    console.log(request.user);
+    if (request.user) {
+      return { msg: 'Authenticated' };
+    } else {
+      return { msg: 'Not Authenticated' };
+    }
+  }
+}
