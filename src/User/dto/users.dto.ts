@@ -1,18 +1,28 @@
 // users/dto/create-user.dto.ts
-import { IsString, IsOptional, IsNotEmpty, IsArray, ValidateNested, IsNumber, IsUrl, IsObject, IsEmail, isString } from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty, IsArray, ValidateNested, IsNumber, IsUrl, IsObject, IsEmail, isString, ValidateIf } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
+
+
 class LinkDto {
-  @IsOptional()
   @IsUrl()
+  @IsOptional() //only checks undefined or null , if its empty string throws error
+  @ValidateIf((o) => o.linkedin !== '') 
+
   linkedin?: string;
 
-  @IsOptional()
+  //decorators processed in reverse order , so only validate if not empty
   @IsUrl()
+  @IsOptional() //only checks undefined or null , if its empty string throws error
+  @ValidateIf((o) => o.github !== '') 
+
   github?: string;
 
-  @IsOptional()
+  //decorators processed in reverse order , so only validate if not empty
   @IsUrl()
+  @IsOptional() //only checks undefined or null , if its empty string throws error
+  @ValidateIf((o) => o.mail !== '') 
+
   mail?: string;
 }
 
@@ -21,12 +31,14 @@ class ContentDataDto {
   @IsNotEmpty()
   title: string;
 
-  @IsOptional()
+  @IsOptional() 
   @IsString()
   description?: string;
 
-  @IsOptional()
+  //decorators processed in bottom to top order , so only validate if not empty
+  @IsOptional() 
   @IsUrl()
+  @ValidateIf((o) => o.link !== '') 
   link?: string;
 }
 

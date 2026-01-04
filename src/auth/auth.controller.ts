@@ -3,11 +3,12 @@ import { Request } from 'express';
 import { GoogleAuthGuard } from './utils/GoogleAuthGuard'
 import { AuthService } from './auth.services';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
 
-  constructor(private authService:AuthService){}
+  constructor(private authService:AuthService , private readonly configService: ConfigService){}
 
   @Get('google/login')
   @UseGuards(GoogleAuthGuard)
@@ -25,7 +26,7 @@ export class AuthController {
     //REDIRECT TO FRONTEND
     // return {token}
     // const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
-    const frontendUrl = process.env.FRONTEND_URL || 'https://zipfolio.xyz';
+    const frontendUrl = this.configService.get<string>('ADMIN_URL')
     const redirectUrl = `${frontendUrl}?token=${token}`;
     
     res.redirect(redirectUrl);

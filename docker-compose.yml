@@ -1,38 +1,50 @@
 services:
-  nest_api:
+  nest_api_prod:
     build:
       context: .
       dockerfile: Dockerfile
+    # Remove: platform: linux/arm64
     ports:
       - '3000:3000'
+    env_file:
+     - .env
     environment:
-      - MONGO_URI=${MONGO_URI}
-      - DB_NAME=${DB_NAME}
+      - NODE_OPTIONS=--max-old-space-size=768
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    #to support hot-reloading
+
     volumes:
-      - ./src:/usr/src/app/src
+     - .:/usr/src/app
+     - /usr/src/app/node_modules
+
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    restart: unless-stopped
+    depends_on:
+      - mongo
+
   mongo:
-    image: mongo
+    image: mongo:7
+    # Remove: platform: linux/arm64
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    command: --wiredTigerCacheSizeGB 0.5
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 384M
     volumes:
-      - mongo-data-local:/data/db
-  
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
-      ME_CONFIG_BASICAUTH: false
-  # Define named volumes
-volumes:
-  mongo-data-local:
-    driver: local
+      - mongo-data-prod:/data/db
 
-# by default : mongodb://root:example@mongo:27017/
-# this is gui
+volumes:
+  mongo-data-prod:
+    driver: local

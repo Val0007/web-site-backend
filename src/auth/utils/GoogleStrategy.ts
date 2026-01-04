@@ -1,4 +1,5 @@
 import {Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy,VerifyCallback } from 'passport-google-oauth20';
 import { AuthService } from '../auth.services';
@@ -7,11 +8,13 @@ import { AuthService } from '../auth.services';
 export class GoogleStrategy extends PassportStrategy(Strategy) {
   constructor(
      private readonly authService: AuthService,
+     private readonly configService: ConfigService, // Inject ConfigService
   ) {
+    console.log("sss",process.env.BACKEND_URL)
     super({
       clientID: '655754532361-usa83o5acmsv1ophlth6ljeomtkfik1t.apps.googleusercontent.com',
       clientSecret: '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',
-      callbackURL: 'http://localhost:3000/auth/google/redirect',
+      callbackURL: `${configService.get<string>('BACKEND_URL')}/auth/google/redirect`,
       scope: ['profile', 'email'],
     });
   }

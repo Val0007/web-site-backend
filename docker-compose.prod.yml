@@ -6,9 +6,9 @@ services:
     # Remove: platform: linux/arm64
     ports:
       - '3000:3000'
+    env_file:
+     - .env
     environment:
-      - MONGO_URI=${MONGO_URI}
-      - DB_NAME=${DB_NAME}
       - NODE_OPTIONS=--max-old-space-size=768
     deploy:
       resources:
