@@ -3,19 +3,37 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
+    # Remove: platform: linux/arm64
     ports:
       - '3001:3001'
     environment:
       - MONGO_URI=${MONGO_URI}
       - DB_NAME=${DB_NAME}
-    volumes:
-      - ./src:/usr/src/app/src
+      - NODE_OPTIONS=--max-old-space-size=768
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    restart: unless-stopped
+    depends_on:
+      - mongo
+
   mongo:
-    image: mongo
+    image: mongo:7
+    # Remove: platform: linux/arm64
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    command: --wiredTigerCacheSizeGB 0.5
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 384M
     volumes:
       - mongo-data-prod:/data/db
 
