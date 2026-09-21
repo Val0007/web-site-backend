@@ -36,7 +36,6 @@ export class AuthService {
     const token = this.generateJwt({
         email: userExists.email,
       });
-    console.log('generateJwt result:', token);
     return token
   }
   

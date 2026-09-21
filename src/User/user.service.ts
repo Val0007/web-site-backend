@@ -19,7 +19,6 @@ export class UserService {
   }
 
   async updateUser(email:string,updateUserDTO:UpdateUserDto){
-    console.log(updateUserDTO)
     const user = await this.userModel.findOneAndUpdate({email},updateUserDTO,{new:true})
     if(!user) throw new HttpException("User not Found",400)
     return user

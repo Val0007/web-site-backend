@@ -10,19 +10,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
      private readonly authService: AuthService,
      private readonly configService: ConfigService, // Inject ConfigService
   ) {
-    console.log("sss",process.env.BACKEND_URL)
     super({
-      clientID: '655754532361-usa83o5acmsv1ophlth6ljeomtkfik1t.apps.googleusercontent.com',
-      clientSecret: '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',
+      clientID: configService.getOrThrow<string>('GOOGLE_CLIENT_ID'),
+      clientSecret: configService.getOrThrow<string>('GOOGLE_CLIENT_SECRET'),
       callbackURL: `${configService.get<string>('BACKEND_URL')}/auth/google/redirect`,
       scope: ['profile', 'email'],
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile,done: VerifyCallback,) {
-    console.log(accessToken);
-    console.log(refreshToken);
-    console.log(profile);
     if(!profile.emails) return null
     const user = {email: profile.emails[0].value}
     done(null, user);

@@ -20,7 +20,6 @@ export class AuthController {
   @Get('google/redirect')
   @UseGuards(GoogleAuthGuard)
   async handleRedirect(@Req() req:Request,@Res() res:Response) {
-    console.log(req.user)
     if(!req.user) throw new HttpException("Error logging in",400)
     const token = await this.authService.signIn({email:req.user["email"]})
     //REDIRECT TO FRONTEND
@@ -34,7 +33,6 @@ export class AuthController {
 
   @Get('status')
   user(@Req() request: Request) {
-    console.log(request.user);
     if (request.user) {
       return { msg: 'Authenticated' };
     } else {
