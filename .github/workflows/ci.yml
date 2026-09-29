@@ -54,4 +54,4 @@ jobs:
 
       # 9. Verifiera att Docker-imaget går att bygga
       - name: Verify Docker Build
-        run: docker build -f Dockerfile -t web-site-backend:ci .
+        run: docker build -f Dockerfile.prod -t web-site-backend:ci .
