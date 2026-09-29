@@ -1,0 +1,57 @@
+name: Backend CI Pipeline
+
+# Pipelinen körs vid varje push eller Pull Request mot main-branchen
+on:
+  push:
+    branches: main
+  pull_request:
+    branches:  main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+# Starta MongoDB i GitHub Actions runner-miljö
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+    steps:
+      # 1. Hämta källkoden från GitHub-repot
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # 2. Sätt upp Node.js-miljön med caching för npm
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # 3. Installera beroenden exakt enligt package-lock.json
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Statisk kodanalys (Linting)
+      - name: Run Linter
+        run: npm run lint
+
+      # 5. Kontrollera TypeScript-typer utan att generera filer
+      - name: Type Check
+        run: npx tsc --noEmit
+
+      # 6. Kör enhetstester (Unit Tests)
+      - name: Run Unit Tests
+        run: npm run test
+
+      # 7. Kör End-to-End-tester (E2E Tests)
+      - name: Run E2E Tests
+        run: npm run test:e2e
+
+      # 8. Verifiera att NestJS-applikationen går att kompilera/bygga
+      - name: Build application
+        run: npm run build
+
+      # 9. Verifiera att Docker-imaget går att bygga
+      - name: Verify Docker Build
+        run: docker build -f Dockerfile.prod -t web-site-backend:ci .
