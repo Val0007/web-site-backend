@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # Automatisk säkerhetsskanning och uppdatering för npm-beroenden
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
