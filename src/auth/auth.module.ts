@@ -9,17 +9,21 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [UserModule,JwtModule.registerAsync({
-    inject: [ConfigService],
-    useFactory: (configService: ConfigService) => ({
-      secret: configService.getOrThrow<string>('JWT_SECRET'),
+  imports: [
+    UserModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.getOrThrow<string>('JWT_SECRET'),
+      }),
     }),
-  }),PassportModule.register({ defaultStrategy: 'jwt', session: false }),],
+    PassportModule.register({ defaultStrategy: 'jwt', session: false }),
+  ],
   controllers: [AuthController],
   providers: [
     GoogleStrategy,
     AuthService,
-    JwtStrategy
+    JwtStrategy,
     // SessionSerializer,
     // {
     //   provide: 'AUTH_SERVICE',

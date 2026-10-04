@@ -6,8 +6,6 @@ import { SiteService } from './site.services';
 @Module({
   imports: [UserModule],
   controllers: [SiteController],
-  providers: [
-    SiteService
-  ]
+  providers: [SiteService],
 })
 export class SiteModule {}

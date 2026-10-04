@@ -1,56 +1,61 @@
 // users/dto/create-user.dto.ts
-import { IsString, IsOptional, IsNotEmpty, IsArray, ValidateNested, IsNumber, IsUrl, IsObject, IsEmail, isString, ValidateIf } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
-
-
+import {
+  IsString,
+  IsOptional,
+  IsNotEmpty,
+  IsArray,
+  ValidateNested,
+  IsNumber,
+  IsUrl,
+  IsObject,
+  ValidateIf,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 class LinkDto {
   @IsUrl()
   @IsOptional() //only checks undefined or null , if its empty string throws error
-  @ValidateIf((o) => o.linkedin !== '') 
-
+  @ValidateIf((o: LinkDto) => o.linkedin !== '')
   linkedin?: string;
 
   //decorators processed in reverse order , so only validate if not empty
   @IsUrl()
   @IsOptional() //only checks undefined or null , if its empty string throws error
-  @ValidateIf((o) => o.github !== '') 
-
+  @ValidateIf((o: LinkDto) => o.github !== '')
   github?: string;
 
   //decorators processed in reverse order , so only validate if not empty
   @IsUrl()
   @IsOptional() //only checks undefined or null , if its empty string throws error
-  @ValidateIf((o) => o.mail !== '') 
-
+  @ValidateIf((o: LinkDto) => o.mail !== '')
   mail?: string;
 }
 
 class ContentDataDto {
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
-  @IsOptional() 
+  @IsOptional()
   @IsString()
   description?: string;
 
   //decorators processed in bottom to top order , so only validate if not empty
-  @IsOptional() 
+  @IsOptional()
   @IsUrl()
-  @ValidateIf((o) => o.link !== '') 
+  @ValidateIf((o: ContentDataDto) => o.link !== '')
   link?: string;
 }
 
 //Under "projects":{"structureid":2,data:[{}]}
 class ContentItemDto {
   @IsNumber()
-  structureId: number;
+  structureId!: number;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ContentDataDto)
-  data: ContentDataDto[];
+  data!: ContentDataDto[];
 }
 
 //For {"Projects":{},"Experience":{}}
@@ -61,14 +66,14 @@ class ContentItemDto {
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
-  wildcard: string;
+  wildcard!: string;
 
   @IsNumber()
-  templateId: number;
+  templateId!: number;
 
   @IsOptional()
   @IsObject()
@@ -78,70 +83,68 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  description:string
+  description!: string;
 
   @IsOptional()
   @IsArray()
-  skills:string[]
+  skills!: string[];
 
   @IsArray()
   @IsNotEmpty({ each: true }) // ensures no empty strings in the array
-  tabs: string[];
+  tabs!: string[];
 
   @IsOptional()
   @IsObject()
   @ValidateNested({ each: true })
   @Type(() => ContentItemDto)
-  content?: Map<string,ContentItemDto>;
+  content?: Map<string, ContentItemDto>;
 }
 
-
 export class UpdateUserDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
 
-    @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    name: string;
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  wildcard!: string;
 
-    @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    wildcard: string;
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  color!: string;
 
-    @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    color: string;
-  
-    // @IsNumber()
-    // templateId: number;
-  
-    @IsOptional()
-    @IsObject()
-    @ValidateNested()
-    @Type(() => LinkDto)
-    links?: LinkDto;
+  // @IsNumber()
+  // templateId: number;
 
-    @IsOptional()
-    @IsNumber()
-    templateId: number;
-  
-    @IsOptional()
-    @IsArray()
-    @IsNotEmpty({ each: true }) // ensures no empty strings in the array
-    tabs: string[];
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => LinkDto)
+  links?: LinkDto;
 
-    @IsOptional()
-    @IsString()
-    description:string
-  
-    @IsOptional()
-    @IsArray()
-    skills:string[]
-  
-    @IsOptional()
-    @IsObject()
-    @ValidateNested({ each: true })
-    @Type(() => ContentItemDto)
-    content?: Map<string,ContentItemDto>;
-  }
+  @IsOptional()
+  @IsNumber()
+  templateId!: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsNotEmpty({ each: true }) // ensures no empty strings in the array
+  tabs!: string[];
+
+  @IsOptional()
+  @IsString()
+  description!: string;
+
+  @IsOptional()
+  @IsArray()
+  skills!: string[];
+
+  @IsOptional()
+  @IsObject()
+  @ValidateNested({ each: true })
+  @Type(() => ContentItemDto)
+  content?: Map<string, ContentItemDto>;
+}

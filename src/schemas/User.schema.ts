@@ -1,47 +1,47 @@
 // users/schemas/user.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document } from 'mongoose';
 
 @Schema()
-class TabData{
-    @Prop({ required: true })
-    title:string
+class TabData {
+  @Prop({ required: true })
+  title: string;
 
-    @Prop({ required: false })
-    description?:string
+  @Prop({ required: false })
+  description?: string;
 
-    @Prop({ required: false  })
-    link?:string
+  @Prop({ required: false })
+  link?: string;
 }
 
 @Schema()
-class Content{
-    structureId:number
-    data:TabData[]
+class Content {
+  structureId: number;
+  data: TabData[];
 }
 
 @Schema()
 export class User {
-  @Prop({ required: false })  //mongoose level
+  @Prop({ required: false }) //mongoose level
   name: string; //ts-level
 
   @Prop({ required: true, unique: true })
   wildcard: string;
 
   @Prop({ required: true, unique: true })
-  email:string
+  email: string;
 
   @Prop({ required: false })
   templateId: number;
 
-  @Prop({required:false})
-  skills:string[]
+  @Prop({ required: false })
+  skills: string[];
 
-  @Prop({required:false})
-  description:string
+  @Prop({ required: false })
+  description: string;
 
-  @Prop({required:false})
-  color:string //site appearance
+  @Prop({ required: false })
+  color: string; //site appearance
 
   @Prop({
     type: {
@@ -66,15 +66,10 @@ export class User {
 
   @Prop({
     type: Content,
-    required:false
+    required: false,
   })
-  content?: {[key:string]:Content}
-
-
+  content?: { [key: string]: Content };
 }
-
-
-
 
 export type UserDocument = User & Document;
 export const UserSchema = SchemaFactory.createForClass(User);
