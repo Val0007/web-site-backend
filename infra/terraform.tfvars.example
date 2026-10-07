@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars (gitignored) and fill in. Secrets can instead be
+# passed as TF_VAR_google_client_id and TF_VAR_google_client_secret.
+atlas_project_id       = ""
+atlas_backing_provider = "AWS"        # must match the existing cluster
+atlas_region           = "EU_NORTH_1" # must match the existing cluster
+admin_url              = "http://localhost:5173"
+# google_client_id     = ""
+# google_client_secret = ""

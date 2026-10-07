@@ -21,3 +21,10 @@ Dockerfile
 *.DS_Store
 *.idea
 .vscode
+
+# Terraform files and state (state holds secrets)
+infra
+**/.terraform
+**/*.tfstate*
+**/.env
+
