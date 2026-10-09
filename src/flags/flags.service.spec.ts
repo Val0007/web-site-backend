@@ -7,7 +7,6 @@ describe('FlagsService', () => {
       findOne: jest.fn().mockReturnValue({ lean }),
       updateOne: jest.fn().mockResolvedValue({}),
     };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return { service: new FlagsService(model as any), model };
   };
 
