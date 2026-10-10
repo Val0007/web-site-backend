@@ -1,7 +1,14 @@
 version: 2
 updates:
-  # Automatisk säkerhetsskanning och uppdatering för npm-beroenden
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
+    ignore:
+      - dependency-name: "@nestjs/*"
+        update-types: ["version-update:semver-major"]
+
