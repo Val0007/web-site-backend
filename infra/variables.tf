@@ -73,6 +73,7 @@ variable "backend_url" {
 variable "admin_url" {
   description = "Admin panel URL users are sent back to after Google login."
   type        = string
+  default     = "https://web-site-admin-xi.vercel.app"
 }
 
 variable "google_client_id" {
