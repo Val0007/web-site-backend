@@ -1,98 +1,91 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ZipFolio backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+The API behind ZipFolio, a portfolio builder. Users sign in with Google in the
+admin panel, fill in their portfolio, and the public site reads it from here.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Live: https://zipfolio-backend-kth.onrender.com
 
-## Description
+## What it uses
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- NestJS 11 (TypeScript)
+- MongoDB with Mongoose
+- Google sign-in (Passport) and JWT tokens
+- Jest and Supertest for tests
+- Docker, GitHub Actions, Terraform
 
-## Project setup
+## Endpoints
 
-```bash
-$ npm install
-```
+| Method and path | What it does | Login needed |
+|---|---|---|
+| `GET /` | Health check | No |
+| `GET /site/:wildcard` | A user's public site data | No |
+| `GET /flags` | Feature flags, for example `{ "template2": false }` | No |
+| `GET /auth/google/login` | Starts Google sign-in | No |
+| `GET /auth/google/redirect` | Google sends the user back here, then to the admin with a token | No |
+| `GET /users` | The signed-in user's data | Yes |
+| `PUT /users` | Save the signed-in user's data | Yes |
+| `PATCH /users/wildcard/:wildcard` | Change the site name (the subdomain) | Yes |
 
-## Compile and run the project
+## Run it locally
+
+You need Node 20, a MongoDB database and a Google OAuth client.
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
+cp .env.example .env      # then fill in the values below
+npm run start:dev         # http://localhost:3000
 ```
 
-## Run tests
+For a quick local MongoDB: `docker run -d -p 27017:27017 mongo:7`
+
+Settings in `.env`:
+
+| Variable | What it is |
+|---|---|
+| `MONGO_URI` | MongoDB connection string, for example `mongodb://127.0.0.1:27017` |
+| `DB_NAME` | Database name, for example `zipfolio` |
+| `JWT_SECRET` | Any long random string; signs login tokens |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | From your Google Cloud OAuth client |
+| `BACKEND_URL` | Where this API is reachable, for example `http://localhost:3000` |
+| `ADMIN_URL` | Where the admin panel runs; users are sent here after login, for example `http://localhost:5173` |
+
+The app does not start without `JWT_SECRET`, `GOOGLE_CLIENT_ID` and
+`GOOGLE_CLIENT_SECRET`. `.env` is not committed.
+
+## Tests and checks
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm test             # unit tests (Jest)
+npm run test:cov     # unit tests with a coverage report
+npm run test:e2e     # end-to-end test, needs MongoDB on 127.0.0.1:27017
+npm run lint         # ESLint (also fixes what it can)
+npm run build        # compile to dist/
 ```
 
-## Deployment
+- Unit tests are next to the code they test, in files named `*.spec.ts`
+  (services, controllers, validation, login strategies, feature flags).
+- The end-to-end test is in `test/` and starts the whole app against a real MongoDB.
+- Coverage must stay at 60% or higher, otherwise the build fails.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## How it is checked and deployed
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- **Every pull request:** GitHub Actions runs lint, a type check, the unit
+  tests, the end-to-end test (with a MongoDB container), the build, and a check
+  that the Docker image builds. CodeQL scans the code for security problems.
+- **Merge to `main`:** the Docker image is built from `Dockerfile.prod`, pushed to
+  GitHub Container Registry as `ghcr.io/val0007/web-site-backend:<commit>`, and
+  Render is told to run that image. This only happens after the checks pass.
+- **`main` is protected:** changes go through a pull request, and the CI check
+  must pass. A pull request that adds a high-severity CodeQL alert cannot be merged.
+- **Dependabot** opens weekly pull requests for npm packages and Docker base images.
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+## Infrastructure
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+`infra/` holds the Terraform that describes the Render service and the MongoDB
+Atlas cluster. See `infra/README.md` for how to use it.
 
-## Resources
+## Files worth knowing
 
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- `Dockerfile` for development, `Dockerfile.prod` for production
+- `docker-compose.yml` and `docker-compose.prod.yml`
+- `.github/workflows/` for the pipelines (`ci.yml`, `codeql.yml`, `terraform.yml`)
